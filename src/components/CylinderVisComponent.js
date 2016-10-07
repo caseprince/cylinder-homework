@@ -17,9 +17,12 @@ class CylinderVisComponent extends React.Component {
       cylinderRotation: new THREE.Euler(0.5, 0, 0),
       cylinderRadius: 1,
       cylinderHeight: 2,
-      directionalLightPosition: new THREE.Vector3(1, 0, 0),
+      directionalLightPosition: new THREE.Vector3(1, 0.5, 0),
       scenePosition: new THREE.Vector3(0, 0, 0),
-      cameraPosition: new THREE.Vector3(0, 0, 5)
+      cameraPosition: new THREE.Vector3(0, 0, 5),
+      pointX: 0,
+      pointY: 0,
+      pointZ: 0
     };
 
     /*this._onAnimate = () => {
@@ -42,7 +45,8 @@ class CylinderVisComponent extends React.Component {
     const width = 500, // canvas width
           height = 500, // canvas height
           cylinderHeightMax = 3,
-          cylinderRadiusMax = 2;
+          cylinderRadiusMax = 2,
+          pointCoordMax = 4;
 
     return (
       <div className='cylindervis-component'>
@@ -76,7 +80,7 @@ class CylinderVisComponent extends React.Component {
                 height={this.state.cylinderHeight}
                 radialSegments={100}
               />
-              <meshPhongMaterial
+              <meshLambertMaterial
                 color={0x00ff00}
                 transparent={true}
                 opacity={.9}
@@ -88,52 +92,57 @@ class CylinderVisComponent extends React.Component {
         </React3>
 
         <div className="controls">
-          <div>
-            <label htmlFor="cylinder-radius">Radius</label>
-            <ReactNativeSlider
-              value={this.state.cylinderRadius}
-              handleChange={e => {
-                this.setState({ cylinderRadius: Number(e.target.value) });
-              }}
-              step={0.01}
-              max={cylinderRadiusMax}
-              min={0}
-              id="cylinder-radius"
-              />
-            <NumericInput
-              value={this.state.cylinderRadius}
-              onChange={valueAsNumber => {
-                this.setState({ cylinderRadius: valueAsNumber });
-              }}
-              step={0.1}
-              max={cylinderRadiusMax}
-              min={0}
-              precision={2} 
-              />
-          </div>
+          <h2>
+            Cylinder Geometry:
+          </h2>
+          <SliderInput 
+            id="point-x"
+            label="Radius"
+            value={this.state.cylinderRadius}
+            min={0}
+            max={cylinderRadiusMax}
+            onChange={val => this.setState({ cylinderRadius: val }) }
+            />
+          <SliderInput 
+            id="point-x"
+            label="Radius"
+            value={this.state.cylinderHeight}
+            min={0}
+            max={cylinderHeightMax}
+            onChange={val => this.setState({ cylinderHeight: val }) }
+            />
 
-          <div>
-            <label htmlFor="cylinder-radius">Height</label>
-            <ReactNativeSlider
-              value={this.state.cylinderHeight}
-              handleChange={e => {
-                this.setState({ cylinderHeight: Number(e.target.value) });
-              }}
-              step={0.01}
-              max={cylinderHeightMax}
-              min={0}
-              />
-            <NumericInput
-              value={this.state.cylinderHeight}
-              onChange={valueAsNumber => {
-                this.setState({ cylinderHeight: valueAsNumber });
-              }}
-              step={0.1}
-              max={cylinderHeightMax}
-              min={0}
-              precision={2} 
-              />
-          </div>
+          <hr/>
+
+          <h2>
+            Point Coords:
+          </h2>
+          <SliderInput 
+            id="point-x"
+            label="X"
+            max={pointCoordMax}
+            min={-pointCoordMax}
+            value={this.state.pointX}
+            onChange={val => this.setState({ pointX: val }) }
+            />
+          <SliderInput 
+            id="point-y"
+            label="Y"
+            max={pointCoordMax}
+            min={-pointCoordMax}
+            value={this.state.pointY}
+            onChange={val => this.setState({ pointY: val }) }
+            />
+          <SliderInput 
+            id="point-z"
+            label="Z"
+            max={pointCoordMax}
+            min={-pointCoordMax}
+            value={this.state.pointZ}
+            onChange={val => this.setState({ pointZ: val }) }
+            />
+         
+
         </div>
       </div>
     );
@@ -147,3 +156,30 @@ CylinderVisComponent.displayName = 'CylinderVisComponent';
 // CylinderVisComponent.defaultProps = {};
 
 export default CylinderVisComponent;
+
+
+class SliderInput extends React.Component {
+  render() {
+    return (
+      <div>
+        <label htmlFor={this.props.id}>{this.props.label}</label>
+        <ReactNativeSlider
+          value={this.props.value}
+          handleChange={e => this.props.onChange(Number(e.target.value)) }
+          step={0.01}
+          max={this.props.max}
+          min={this.props.min}
+          id={this.props.id}
+          />
+        <NumericInput
+          value={this.props.value}
+          onChange={val => this.props.onChange(val) }
+          step={0.1}
+          max={this.props.max}
+          min={this.props.min}
+          precision={2}
+          />
+      </div>
+    );
+  }
+}

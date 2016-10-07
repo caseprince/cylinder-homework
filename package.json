@@ -63,8 +63,10 @@
   "dependencies": {
     "core-js": "^2.0.0",
     "normalize.css": "^4.0.0",
-    "react": "^15.0.0",
-    "react-dom": "^15.0.0",
-    "react-html5-slider": "^0.1.2"
+    "react": "^15.3.2",
+    "react-dom": "^15.3.1",
+    "react-html5-slider": "^0.1.2",
+    "react-three-renderer": "^2.3.2",
+    "three": "^0.79.0"
   }
 }

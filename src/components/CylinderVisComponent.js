@@ -29,7 +29,8 @@ export default class CylinderVisComponent extends React.Component {
       linePosition: new THREE.Vector3(0, 0, 0),
       lineDirection: new THREE.Vector3(1, 0, 0),
       lineLength: 1,
-      lineArrowLength: 0.2
+      lineArrowLength: 0.2,
+      usePerspCamera: true
     };
   }
 
@@ -44,7 +45,8 @@ export default class CylinderVisComponent extends React.Component {
     return (
       <div className='cylindervis-component'>
         <React3
-          mainCamera="cameraPersp"
+          mainCamera={this.state.usePerspCamera ? 
+                      'cameraPersp' : 'cameraOrtho'}
           width={width}
           height={height}
           antialias={true}
@@ -68,6 +70,7 @@ export default class CylinderVisComponent extends React.Component {
               near={0.9}
               far={1000}
               position={this.state.cameraPosition}
+              lookAt={this.state.scenePosition}
             />
             <ambientLight
               color={0x404040}
@@ -93,7 +96,6 @@ export default class CylinderVisComponent extends React.Component {
             <arrowHelper
               dir={this.state.lineDirection}
               origin={this.state.linePosition}
-              //rotation={this.state.cylinderRotation}
               length={this.state.lineLength}
               headLength={this.state.lineArrowLength}
               headWidth={0.1}
@@ -157,6 +159,17 @@ export default class CylinderVisComponent extends React.Component {
             {`Distance to Surface: ${this.state.lineLength}`}
           </p>
 
+          <button 
+            type="button"
+            className="camera-toggle"
+            onClick={() => {
+              this.setState({
+                usePerspCamera: !this.state.usePerspCamera
+              });
+            }}
+            >{`Use ${this.state.usePerspCamera ? 
+                'Orthographic' : 'Perspective'} Camera`}</button>
+
         </div>
       </div>
     );
@@ -199,7 +212,7 @@ export default class CylinderVisComponent extends React.Component {
         dir = new THREE.Vector3( 0, -1, 0 );
         dist = (height / 2) + y;
       } else {
-        dir = new THREE.Vector3( x * (1/fromOrigin), 0,  z * (1/fromOrigin));
+        dir = new THREE.Vector3(x * (1/fromOrigin), 0,  z * (1/fromOrigin));
       }
     
     return { dist, dir }

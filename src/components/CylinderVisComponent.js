@@ -3,7 +3,7 @@
 import React from 'react';
 import React3 from 'react-three-renderer';
 import THREE from 'three';
-
+import classNames from 'classnames';
 import ReactNativeSlider from 'react-html5-slider';
 import NumericInput from 'react-numeric-input';
 
@@ -16,8 +16,9 @@ export default class CylinderVisComponent extends React.Component {
   constructor(props, context) {
     super(props, context);
 
+    this.cylinderSegments = 64;
+
     this.state = {
-      cylinderRotation: new THREE.Euler(0, 0, 0),
       cylinderRadius: 1,
       cylinderHeight: 2,
       pointLightPosition: new THREE.Vector3(10, 10, 10),
@@ -30,7 +31,9 @@ export default class CylinderVisComponent extends React.Component {
       lineDirection: new THREE.Vector3(1, 0, 0),
       lineLength: 1,
       lineArrowLength: 0.2,
-      usePerspCamera: true
+      usePerspCamera: true,
+      ringRotation: new THREE.Euler(Math.PI/-2, 0, 0),
+      ringPosition:  new THREE.Vector3(0, 0, 0)
     };
   }
 
@@ -78,12 +81,12 @@ export default class CylinderVisComponent extends React.Component {
             <pointLight
              position={this.state.pointLightPosition}
              />
-            <mesh rotation={this.state.cylinderRotation}>
+            <mesh>
               <cylinderGeometry
                 radiusTop={this.state.cylinderRadius}
                 radiusBottom={this.state.cylinderRadius}
                 height={this.state.cylinderHeight}
-                radialSegments={100}
+                radialSegments={this.cylinderSegments}
               />
               <meshLambertMaterial
                 color={0x00ffDC}
@@ -93,12 +96,25 @@ export default class CylinderVisComponent extends React.Component {
                 wireframe={false}
               />
             </mesh>
-            <mesh rotation={this.state.cylinderRotation}>
+            <mesh rotation={this.state.ringRotation}
+                  position={this.state.ringPosition}>
+              <ringGeometry
+                innerRadius={this.state.cylinderRadius - 0.02}
+                outerRadius={this.state.cylinderRadius}
+                thetaSegments={this.cylinderSegments}
+                phiSegments={this.cylinderSegments}
+              />
+              <lineBasicMaterial
+                color={0xffff00}
+                linewidth={2}
+              />
+            </mesh>
+            <mesh>
               <cylinderGeometry
                 radiusTop={this.state.cylinderRadius}
                 radiusBottom={this.state.cylinderRadius}
                 height={this.state.cylinderHeight}
-                radialSegments={100}
+                radialSegments={this.cylinderSegments}
               />
               <meshLambertMaterial
                 color={0x00ffDC}
@@ -142,7 +158,7 @@ export default class CylinderVisComponent extends React.Component {
           <hr/>
 
           <h2>
-            Point Coords:
+            Starting Point Coordinates:
           </h2>
           <SliderInput
             id="point-x"
@@ -170,10 +186,15 @@ export default class CylinderVisComponent extends React.Component {
             />
 
           <hr/>
-          <p>
-            {`Distance to Surface: ${this.state.lineLength}`}
-          </p>
 
+          <h2>Distance to Surface:</h2>
+          <div className={classNames('output', {negative: this.state.lineLength < 0})}>
+            {this.state.lineLength}
+          </div>
+
+          <hr/>
+
+          <h2>Camera:</h2>
           <button 
             type="button"
             className="camera-toggle"
@@ -205,6 +226,10 @@ export default class CylinderVisComponent extends React.Component {
     newState.lineLength = dist;
     newState.lineArrowLength = dist < 0 ? -0.2 : 0.2;
     newState.lineDirection = dir;
+
+    let ringY = Math.max(Math.min(pointY, this.state.cylinderHeight/2), this.state.cylinderHeight/-2);
+    newState.ringPosition = new THREE.Vector3( 0, ringY, 0);
+
     this.setState(newState);
   }
 
@@ -257,7 +282,7 @@ class SliderInput extends React.Component {
           max={this.props.max}
           min={this.props.min}
           id={this.props.id}
-          />
+        />
         <NumericInput
           value={this.props.value}
           onChange={val => this.props.onChange(val) }
@@ -265,7 +290,7 @@ class SliderInput extends React.Component {
           max={this.props.max}
           min={this.props.min}
           precision={2}
-          />
+        />
       </div>
     );
   }

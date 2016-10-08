@@ -14,53 +14,54 @@ class CylinderVisComponent extends React.Component {
     super(props, context);
 
     this.state = {
-      cylinderRotation: new THREE.Euler(0.5, 0, 0),
+      cylinderRotation: new THREE.Euler(0, 5, 0),
       cylinderRadius: 1,
       cylinderHeight: 2,
-      directionalLightPosition: new THREE.Vector3(1, 0.5, 0),
+      pointLightPosition: new THREE.Vector3(10, 10, 10),
       scenePosition: new THREE.Vector3(0, 0, 0),
-      cameraPosition: new THREE.Vector3(0, 0, 5),
+      cameraPosition: new THREE.Vector3(0, 2, 5),
       pointX: 0,
       pointY: 0,
-      pointZ: 0
+      pointZ: 0,
+      linePosition: new THREE.Vector3(0, 0, 0),
+      lineDirection: new THREE.Vector3(1, 0, 0),
+      lineLength: 1,
+      lineArrowLength: 0.2
     };
-
-    /*this._onAnimate = () => {
-      // we will get this callback every frame
-
-      // pretend cylinderRotation is immutable.
-      // this helps with updates and pure rendering.
-      // React will be sure that the rotation has now updated.
-      this.setState({
-        cylinderRotation: new THREE.Euler(
-          0.5,
-          this.state.cylinderRotation.y + 0.01,
-          0
-        )
-      });
-    };*/
   }
 
   render() {
     const width = 500, // canvas width
           height = 500, // canvas height
-          cylinderHeightMax = 3,
+          orthoZoom = 2.5,
+          cylinderHeightMax = 4,
           cylinderRadiusMax = 2,
-          pointCoordMax = 4;
+          pointCoordMax = 2;
 
     return (
       <div className='cylindervis-component'>
         <React3
-          mainCamera="camera" // this points to the perspectiveCamera which has the name set to "camera" below
+          mainCamera="cameraPersp" // this points to the perspectiveCamera which has the name set to "camera" below
           width={width}
           height={height}
-          //onAnimate={this._onAnimate}
+          antialias={true}
         >
           <scene>
             <perspectiveCamera
-              name="camera"
+              name="cameraPersp"
               fov={65}
               aspect={width / height}
+              near={0.9}
+              far={1000}
+              position={this.state.cameraPosition}
+              lookAt={this.state.scenePosition}
+            />
+            <orthographicCamera
+              name="cameraOrtho"
+              top={orthoZoom}
+              right={orthoZoom}
+              bottom={-orthoZoom}
+              left={-orthoZoom}
               near={0.9}
               far={1000}
               position={this.state.cameraPosition}
@@ -68,11 +69,9 @@ class CylinderVisComponent extends React.Component {
             <ambientLight
               color={0x404040}
             />
-            <directionalLight
-              color={0x404040}
-              position={this.state.directionalLightPosition}
-              lookAt={this.state.scenePosition}
-            />
+            <pointLight
+             position={this.state.pointLightPosition}
+             />
             <mesh rotation={this.state.cylinderRotation}>
               <cylinderGeometry
                 radiusTop={this.state.cylinderRadius}
@@ -80,14 +79,22 @@ class CylinderVisComponent extends React.Component {
                 height={this.state.cylinderHeight}
                 radialSegments={100}
               />
-              <meshLambertMaterial
-                color={0x00ff00}
+              <meshPhongMaterial
+                color={0x00ffDC}
                 transparent={true}
-                opacity={.9}
+                opacity={.6}
                 side={THREE.DoubleSide}
                 wireframe={false}
               />
             </mesh>
+            <arrowHelper
+              dir={this.state.lineDirection}
+              origin={this.state.linePosition}
+              //rotation={this.state.cylinderRotation}
+              length={this.state.lineLength}
+              headLength={this.state.lineArrowLength}
+              headWidth={0.1}
+            />
           </scene>
         </React3>
 
@@ -95,21 +102,21 @@ class CylinderVisComponent extends React.Component {
           <h2>
             Cylinder Geometry:
           </h2>
-          <SliderInput 
-            id="point-x"
-            label="Radius"
+          <SliderInput
+            id="cylinder-radius"
+            label="radius"
             value={this.state.cylinderRadius}
             min={0}
             max={cylinderRadiusMax}
-            onChange={val => this.setState({ cylinderRadius: val }) }
+            onChange={val => this.update('cylinderRadius', val)}
             />
-          <SliderInput 
-            id="point-x"
-            label="Radius"
+          <SliderInput
+            id="cylinder-height"
+            label="height"
             value={this.state.cylinderHeight}
             min={0}
             max={cylinderHeightMax}
-            onChange={val => this.setState({ cylinderHeight: val }) }
+            onChange={val => this.update('cylinderHeight', val) }
             />
 
           <hr/>
@@ -117,35 +124,83 @@ class CylinderVisComponent extends React.Component {
           <h2>
             Point Coords:
           </h2>
-          <SliderInput 
+          <SliderInput
             id="point-x"
-            label="X"
+            label="x"
             max={pointCoordMax}
             min={-pointCoordMax}
             value={this.state.pointX}
-            onChange={val => this.setState({ pointX: val }) }
+            onChange={val => this.update('pointX', val) }
             />
-          <SliderInput 
+          <SliderInput
             id="point-y"
-            label="Y"
+            label="y"
             max={pointCoordMax}
             min={-pointCoordMax}
             value={this.state.pointY}
-            onChange={val => this.setState({ pointY: val }) }
+            onChange={val => this.update('pointY', val) }
             />
-          <SliderInput 
+          <SliderInput
             id="point-z"
-            label="Z"
+            label="x"
             max={pointCoordMax}
             min={-pointCoordMax}
             value={this.state.pointZ}
-            onChange={val => this.setState({ pointZ: val }) }
+            onChange={val => this.update('pointZ', val) }
             />
-         
+
+          <hr/>
+          <p>
+            {`Distance to Surface: ${this.state.lineLength}`}
+          </p>
 
         </div>
       </div>
     );
+  }
+
+  update(prop, val) {
+    let newState = this.state;
+    newState[prop] = val;
+    let { pointX, pointY, pointZ } = newState;
+    newState.linePosition = new THREE.Vector3( pointX, pointY, pointZ );
+    let { dist, dir } = this.toCylinderSurface(
+                          this.state.cylinderRadius,
+                          this.state.cylinderHeight,
+                          pointX,
+                          pointY,
+                          pointZ
+                        );
+    newState.lineLength = dist;
+    newState.lineArrowLength = dist < 0 ? -0.2 : 0.2;
+    newState.lineDirection = dir;
+    this.setState(newState);
+  }
+
+  toCylinderSurface(radius, height, x, y, z) {
+    let fromOrigin = Math.sqrt((z * z) + (x * x)),
+        dist = radius - fromOrigin,
+        dir;
+      if (fromOrigin === 0) {
+        if (height / 2 < radius) {
+           dir = new THREE.Vector3( 0, 1, 0 );
+           dist = height / 2;
+        } else {
+           dir = new THREE.Vector3( 1, 0, 0 );
+           dist = radius;
+        }
+      } else if (y >= 0 && dist > (height / 2) - y ) {
+        dir = new THREE.Vector3( 0, 1, 0 );
+        dist = (height / 2) - y;
+      } else if (y < 0 && dist > (height / 2) + y ) {
+        dir = new THREE.Vector3( 0, -1, 0 );
+        dist = (height / 2) + y;
+      } else {
+        dir = new THREE.Vector3( x * (1/fromOrigin), 0,  z * (1/fromOrigin));
+      }
+    
+
+    return { dist, dir }
   }
 }
 

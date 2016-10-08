@@ -17,7 +17,7 @@ export default class CylinderVisComponent extends React.Component {
     super(props, context);
 
     this.state = {
-      cylinderRotation: new THREE.Euler(0, 5, 0),
+      cylinderRotation: new THREE.Euler(0, 0, 0),
       cylinderRadius: 1,
       cylinderHeight: 2,
       pointLightPosition: new THREE.Vector3(10, 10, 10),
@@ -85,11 +85,26 @@ export default class CylinderVisComponent extends React.Component {
                 height={this.state.cylinderHeight}
                 radialSegments={100}
               />
-              <meshPhongMaterial
+              <meshLambertMaterial
                 color={0x00ffDC}
                 transparent={true}
-                opacity={.6}
-                side={THREE.DoubleSide}
+                opacity={.7}
+                side={THREE.BackSide}
+                wireframe={false}
+              />
+            </mesh>
+            <mesh rotation={this.state.cylinderRotation}>
+              <cylinderGeometry
+                radiusTop={this.state.cylinderRadius}
+                radiusBottom={this.state.cylinderRadius}
+                height={this.state.cylinderHeight}
+                radialSegments={100}
+              />
+              <meshLambertMaterial
+                color={0x00ffDC}
+                transparent={true}
+                opacity={.4}
+                side={THREE.FrontSide}
                 wireframe={false}
               />
             </mesh>
@@ -147,7 +162,7 @@ export default class CylinderVisComponent extends React.Component {
             />
           <SliderInput
             id="point-z"
-            label="x"
+            label="z"
             max={pointCoordMax}
             min={-pointCoordMax}
             value={this.state.pointZ}

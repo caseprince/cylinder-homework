@@ -9,7 +9,10 @@ import NumericInput from 'react-numeric-input';
 
 require('styles//CylinderVis.less');
 
-class CylinderVisComponent extends React.Component {
+export default class CylinderVisComponent extends React.Component {
+  
+  static displayName: 'CylinderVisComponent';
+
   constructor(props, context) {
     super(props, context);
 
@@ -41,7 +44,7 @@ class CylinderVisComponent extends React.Component {
     return (
       <div className='cylindervis-component'>
         <React3
-          mainCamera="cameraPersp" // this points to the perspectiveCamera which has the name set to "camera" below
+          mainCamera="cameraPersp"
           width={width}
           height={height}
           antialias={true}
@@ -199,21 +202,22 @@ class CylinderVisComponent extends React.Component {
         dir = new THREE.Vector3( x * (1/fromOrigin), 0,  z * (1/fromOrigin));
       }
     
-
     return { dist, dir }
   }
 }
 
-CylinderVisComponent.displayName = 'CylinderVisComponent';
-
-// Uncomment properties you need
-// CylinderVisComponent.propTypes = {};
-// CylinderVisComponent.defaultProps = {};
-
-export default CylinderVisComponent;
-
 
 class SliderInput extends React.Component {
+
+  static propTypes = {
+    id: React.PropTypes.string.isRequired,
+    label: React.PropTypes.string.isRequired,
+    value: React.PropTypes.number.isRequired,
+    max: React.PropTypes.number.isRequired,
+    min: React.PropTypes.number.isRequired,
+    onChange: React.PropTypes.func.isRequired
+  };
+
   render() {
     return (
       <div>

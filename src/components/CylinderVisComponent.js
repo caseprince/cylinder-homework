@@ -6,6 +6,7 @@ import THREE from 'three';
 import classNames from 'classnames';
 import ReactNativeSlider from 'react-html5-slider';
 import NumericInput from 'react-numeric-input';
+import Big from 'big.js';
 
 require('styles//CylinderVis.less');
 
@@ -30,6 +31,7 @@ export default class CylinderVisComponent extends React.Component {
       linePosition: new THREE.Vector3(0, 0, 0),
       lineDirection: new THREE.Vector3(1, 0, 0),
       lineLength: 1,
+      distance: 1,
       usePerspCamera: true,
       ringRotation: new THREE.Euler(Math.PI/-2, 0, 0),
       ringPosition:  new THREE.Vector3(0, 0, 0)
@@ -247,15 +249,14 @@ export default class CylinderVisComponent extends React.Component {
     this.setState(newState);
   }
 
-  toCylinderSurface(radius, height, x, y, z) {
+  toCylinderSurface(radius, height, x, y, z) {    
     let fromOrigin = Math.sqrt((z * z) + (x * x)),
         dist = radius - fromOrigin,
         dir = new THREE.Vector3(1, 0, 0);
 
-    // Note: Order of directional preference when distances are equal: Sideways (positive x), Up, Down
-    
+    // Order of directional preference when equal distances: Sideways (positive x), Up, Down
     if (dist < 0 && (y > height / 2 || y < height /-2)) {
-      // Outside radius && above or below
+      // Outside cylinder radius && above or below
       let yDif = y > 0 ? y - height / 2 : y - height / -2;
       dist = Math.sqrt((dist * dist) + (yDif * yDif));
       dir = new THREE.Vector3(x * (1/dist), yDif * (1/dist),  z * (1/dist));
@@ -271,6 +272,9 @@ export default class CylinderVisComponent extends React.Component {
     } else if (fromOrigin > 0) {
       dir = new THREE.Vector3(x * (1/fromOrigin), 0,  z * (1/fromOrigin));
     }
+
+    // TODO: Arbitrary precision decimals with big.js, decimal.js, or bignumber.js?
+    dist = Number(dist.toPrecision(12));
 
     if (dist < 0) {
       dir.negate();

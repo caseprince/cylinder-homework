@@ -104,6 +104,19 @@ export default class CylinderVisComponent extends React.Component {
                 thetaSegments={this.cylinderSegments}
                 phiSegments={this.cylinderSegments}
               />
+              <meshLambertMaterial
+                color={0xffff00}
+                transparent={true}
+                opacity={.7}
+                side={THREE.BackSide}
+                wireframe={false}
+              />
+            </mesh>
+            <mesh position={this.state.linePosition}>
+              <octahedronGeometry
+                radius={0.06}
+                detail={0}
+              />
               <lineBasicMaterial
                 color={0xffff00}
                 linewidth={2}

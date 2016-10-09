@@ -258,7 +258,7 @@ export default class CylinderVisComponent extends React.Component {
       if (y >= 0 && (height / 2) - y < radius) {
         dir = new THREE.Vector3(0, 1, 0);
         dist = (height / 2) - y;
-      } else if (y < 0) {
+      } else if (y < 0 && (height / 2) + y < radius) {
         dir = new THREE.Vector3(0, -1, 0);
         dist = (height / 2) + y;
       }

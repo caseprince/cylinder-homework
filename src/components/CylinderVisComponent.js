@@ -48,7 +48,7 @@ export default class CylinderVisComponent extends React.Component {
     return (
       <div className='cylindervis-component'>
         <React3
-          mainCamera={this.state.usePerspCamera ? 
+          mainCamera={this.state.usePerspCamera ?
                       'cameraPersp' : 'cameraOrtho'}
           width={width}
           height={height}
@@ -98,20 +98,21 @@ export default class CylinderVisComponent extends React.Component {
             </mesh>
             <mesh rotation={this.state.ringRotation}
                   position={this.state.ringPosition}>
+              {/* TODO: replace ringGeometry with shapeGeometry when implemented?:
+                  https://github.com/toxicFork/react-three-renderer/wiki/Internal-Components
+                  */}
               <ringGeometry
                 innerRadius={this.state.cylinderRadius - 0.02}
                 outerRadius={this.state.cylinderRadius}
                 thetaSegments={this.cylinderSegments}
                 phiSegments={this.cylinderSegments}
               />
-              <meshLambertMaterial
+              <lineBasicMaterial
                 color={0xffff00}
-                transparent={true}
-                opacity={.7}
-                side={THREE.BackSide}
-                wireframe={false}
+                linewidth={2}
               />
             </mesh>
+
             <mesh position={this.state.linePosition}>
               <octahedronGeometry
                 radius={0.06}
@@ -158,7 +159,7 @@ export default class CylinderVisComponent extends React.Component {
             min={0}
             max={cylinderRadiusMax}
             onChange={val => this.update('cylinderRadius', val)}
-            />
+          />
           <SliderInput
             id="cylinder-height"
             label="height"
@@ -166,7 +167,7 @@ export default class CylinderVisComponent extends React.Component {
             min={0}
             max={cylinderHeightMax}
             onChange={val => this.update('cylinderHeight', val) }
-            />
+          />
 
           <hr/>
 
@@ -180,7 +181,7 @@ export default class CylinderVisComponent extends React.Component {
             min={-pointCoordMax}
             value={this.state.pointX}
             onChange={val => this.update('pointX', val) }
-            />
+          />
           <SliderInput
             id="point-y"
             label="y"
@@ -188,7 +189,7 @@ export default class CylinderVisComponent extends React.Component {
             min={-pointCoordMax}
             value={this.state.pointY}
             onChange={val => this.update('pointY', val) }
-            />
+          />
           <SliderInput
             id="point-z"
             label="z"
@@ -196,7 +197,7 @@ export default class CylinderVisComponent extends React.Component {
             min={-pointCoordMax}
             value={this.state.pointZ}
             onChange={val => this.update('pointZ', val) }
-            />
+          />
 
           <hr/>
 
@@ -208,7 +209,7 @@ export default class CylinderVisComponent extends React.Component {
           <hr/>
 
           <h2>Camera:</h2>
-          <button 
+          <button
             type="button"
             className="camera-toggle"
             onClick={() => {
@@ -216,8 +217,9 @@ export default class CylinderVisComponent extends React.Component {
                 usePerspCamera: !this.state.usePerspCamera
               });
             }}
-            >{`Use ${this.state.usePerspCamera ? 
-                'Orthographic' : 'Perspective'} Camera`}</button>
+          >
+            {`Use ${this.state.usePerspCamera ? 'Orthographic' : 'Perspective'} Camera`}
+          </button>
 
         </div>
       </div>
@@ -249,26 +251,28 @@ export default class CylinderVisComponent extends React.Component {
   toCylinderSurface(radius, height, x, y, z) {
     let fromOrigin = Math.sqrt((z * z) + (x * x)),
         dist = radius - fromOrigin,
-        dir;
-      if (fromOrigin === 0) {
-        if (height / 2 < radius) {
-           dir = new THREE.Vector3( 0, 1, 0 );
-           dist = height / 2;
-        } else {
-           dir = new THREE.Vector3( 1, 0, 0 );
-           dist = radius;
-        }
-      } else if (y >= 0 && dist > (height / 2) - y ) {
-        dir = new THREE.Vector3( 0, 1, 0 );
+        dir = new THREE.Vector3(1, 0, 0);
+
+    // Order of directional preference when equal distances: Sideways (positive x), Up, Down
+    if (fromOrigin === 0) {
+      if (y >= 0 && (height / 2) - y < radius) {
+        dir = new THREE.Vector3(0, 1, 0);
         dist = (height / 2) - y;
-      } else if (y < 0 && dist > (height / 2) + y ) {
-        dir = new THREE.Vector3( 0, -1, 0 );
+      } else if (y < 0) {
+        dir = new THREE.Vector3(0, -1, 0);
         dist = (height / 2) + y;
-      } else {
-        dir = new THREE.Vector3(x * (1/fromOrigin), 0,  z * (1/fromOrigin));
       }
+    } else if (y >= 0 && dist > (height / 2) - y) {
+      dir = new THREE.Vector3(0, 1, 0);
+      dist = (height / 2) - y;
+    } else if (y < 0 && dist > (height / 2) + y) {
+      dir = new THREE.Vector3(0, -1, 0);
+      dist = (height / 2) + y;
+    } else {
+      dir = new THREE.Vector3(x * (1/fromOrigin), 0,  z * (1/fromOrigin));
+    }
     
-    return { dist, dir }
+    return {dist, dir}
   }
 }
 

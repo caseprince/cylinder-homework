@@ -30,7 +30,6 @@ export default class CylinderVisComponent extends React.Component {
       linePosition: new THREE.Vector3(0, 0, 0),
       lineDirection: new THREE.Vector3(1, 0, 0),
       lineLength: 1,
-      lineArrowLength: 0.2,
       usePerspCamera: true,
       ringRotation: new THREE.Euler(Math.PI/-2, 0, 0),
       ringPosition:  new THREE.Vector3(0, 0, 0)
@@ -142,7 +141,7 @@ export default class CylinderVisComponent extends React.Component {
               dir={this.state.lineDirection}
               origin={this.state.linePosition}
               length={this.state.lineLength}
-              headLength={this.state.lineArrowLength}
+              headLength={0.2}
               headWidth={0.1}
             />
           </scene>
@@ -202,8 +201,8 @@ export default class CylinderVisComponent extends React.Component {
           <hr/>
 
           <h2>Distance to Surface:</h2>
-          <div className={classNames('output', {negative: this.state.lineLength < 0})}>
-            {this.state.lineLength}
+          <div className={classNames('output', {negative: this.state.distance < 0})}>
+            {this.state.distance}
           </div>
 
           <hr/>
@@ -238,8 +237,8 @@ export default class CylinderVisComponent extends React.Component {
                           pointY,
                           pointZ
                         );
-    newState.lineLength = dist;
-    newState.lineArrowLength = dist < 0 ? -0.2 : 0.2;
+    newState.distance = dist;
+    newState.lineLength = Math.abs(dist);
     newState.lineDirection = dir;
 
     let ringY = Math.max(Math.min(pointY, this.state.cylinderHeight/2), this.state.cylinderHeight/-2);
@@ -253,23 +252,28 @@ export default class CylinderVisComponent extends React.Component {
         dist = radius - fromOrigin,
         dir = new THREE.Vector3(1, 0, 0);
 
-    // Order of directional preference when equal distances: Sideways (positive x), Up, Down
-    if (fromOrigin === 0) {
-      if (y >= 0 && (height / 2) - y < radius) {
-        dir = new THREE.Vector3(0, 1, 0);
-        dist = (height / 2) - y;
-      } else if (y < 0 && (height / 2) + y < radius) {
-        dir = new THREE.Vector3(0, -1, 0);
-        dist = (height / 2) + y;
-      }
+    // Note: Order of directional preference when distances are equal: Sideways (positive x), Up, Down
+    
+    if (dist < 0 && (y > height / 2 || y < height /-2)) {
+      // Outside radius && above or below
+      let yDif = y > 0 ? y - height / 2 : y - height / -2;
+      dist = Math.sqrt((dist * dist) + (yDif * yDif));
+      dir = new THREE.Vector3(x * (1/dist), yDif * (1/dist),  z * (1/dist));
+      dist *= -1;
     } else if (y >= 0 && dist > (height / 2) - y) {
+      // Closest to top endcap
       dir = new THREE.Vector3(0, 1, 0);
       dist = (height / 2) - y;
     } else if (y < 0 && dist > (height / 2) + y) {
+      // Closest to bottom endcap
       dir = new THREE.Vector3(0, -1, 0);
       dist = (height / 2) + y;
-    } else {
+    } else if (fromOrigin > 0) {
       dir = new THREE.Vector3(x * (1/fromOrigin), 0,  z * (1/fromOrigin));
+    }
+
+    if (dist < 0) {
+      dir.negate();
     }
     
     return {dist, dir}

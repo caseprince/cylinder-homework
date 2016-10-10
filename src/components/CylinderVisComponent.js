@@ -12,6 +12,13 @@ require('styles//CylinderVis.less');
 export default class CylinderVisComponent extends React.Component {
   
   static displayName = 'CylinderVisComponent';
+  static defaultProps = {
+    cylinderRadius: 1,
+    cylinderHeight: 2.2,
+    pointX: 0,
+    pointY: 0.1,
+    pointZ: 0
+  };
 
   constructor(props, context) {
     super(props, context);
@@ -22,11 +29,11 @@ export default class CylinderVisComponent extends React.Component {
     this.cylinderSegments = 64;
 
     this.state = {
-      cylinderRadius: 1,
-      cylinderHeight: 2,
-      pointX: 0,
-      pointY: 0,
-      pointZ: 0,
+      cylinderRadius: this.props.cylinderRadius,
+      cylinderHeight: this.props.cylinderHeight,
+      pointX: this.props.pointX,
+      pointY: this.props.pointY,
+      pointZ: this.props.pointZ,
       linePosition: new THREE.Vector3(0, 0, 0),
       lineDirection: new THREE.Vector3(1, 0, 0),
       lineLength: 1,
@@ -35,6 +42,10 @@ export default class CylinderVisComponent extends React.Component {
       ringRotation: new THREE.Euler(Math.PI/-2, 0, 0),
       ringPosition: new THREE.Vector3(0, 0, 0)
     };
+  }
+
+  componentWillMount() {
+    this.update();
   }
 
   render() {

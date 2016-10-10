@@ -6,7 +6,6 @@ import THREE from 'three';
 import classNames from 'classnames';
 import ReactNativeSlider from 'react-html5-slider';
 import NumericInput from 'react-numeric-input';
-import Big from 'big.js';
 
 require('styles//CylinderVis.less');
 
@@ -280,7 +279,7 @@ export default class CylinderVisComponent extends React.Component {
 
     if (dist < 0) {
       // THREE.ArrowHelper doesn't like negative THREE.Vector3's
-      dir.negate();
+      dir.negate();@seth
     }
     
     return {dist, dir}

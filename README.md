@@ -17,4 +17,10 @@ npm install
 npm run dist
 ```
 
+## Testing:
+
+```
+npm test
+```
+
 Based on https://github.com/react-webpack-generators/generator-react-webpack

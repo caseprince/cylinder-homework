@@ -11,19 +11,19 @@ require('styles//CylinderVis.less');
 
 export default class CylinderVisComponent extends React.Component {
   
-  static displayName: 'CylinderVisComponent';
+  static displayName = 'CylinderVisComponent';
 
   constructor(props, context) {
     super(props, context);
 
+    this.pointLightPosition = new THREE.Vector3(10, 10, 10);
+    this.scenePosition = new THREE.Vector3(0, 0, 0);
+    this.cameraPosition = new THREE.Vector3(0, 2, 5);
     this.cylinderSegments = 64;
 
     this.state = {
       cylinderRadius: 1,
       cylinderHeight: 2,
-      pointLightPosition: new THREE.Vector3(10, 10, 10),
-      scenePosition: new THREE.Vector3(0, 0, 0),
-      cameraPosition: new THREE.Vector3(0, 2, 5),
       pointX: 0,
       pointY: 0,
       pointZ: 0,
@@ -33,7 +33,7 @@ export default class CylinderVisComponent extends React.Component {
       distance: 1,
       usePerspCamera: true,
       ringRotation: new THREE.Euler(Math.PI/-2, 0, 0),
-      ringPosition:  new THREE.Vector3(0, 0, 0)
+      ringPosition: new THREE.Vector3(0, 0, 0)
     };
   }
 
@@ -61,8 +61,8 @@ export default class CylinderVisComponent extends React.Component {
               aspect={width / height}
               near={0.9}
               far={1000}
-              position={this.state.cameraPosition}
-              lookAt={this.state.scenePosition}
+              position={this.cameraPosition}
+              lookAt={this.scenePosition}
             />
             <orthographicCamera
               name="cameraOrtho"
@@ -72,15 +72,11 @@ export default class CylinderVisComponent extends React.Component {
               left={-orthoZoom}
               near={0.9}
               far={1000}
-              position={this.state.cameraPosition}
-              lookAt={this.state.scenePosition}
+              position={this.cameraPosition}
+              lookAt={this.scenePosition}
             />
-            <ambientLight
-              color={0x404040}
-            />
-            <pointLight
-             position={this.state.pointLightPosition}
-             />
+            <ambientLight color={0x404040}/>
+            <pointLight position={this.pointLightPosition}/>
             <mesh>
               <cylinderGeometry
                 radiusTop={this.state.cylinderRadius}
@@ -248,14 +244,14 @@ export default class CylinderVisComponent extends React.Component {
     this.setState(newState);
   }
 
-  toCylinderSurface(radius, height, x, y, z) {    
+  toCylinderSurface(radius, height, x, y, z) {
     let fromOrigin = Math.sqrt((z * z) + (x * x)),
         dist = radius - fromOrigin,
         dir = new THREE.Vector3(1, 0, 0);
 
     // Order of directional preference when equal distances: Sideways (positive x), Up, Down
     if (dist < 0 && (y > height / 2 || y < height /-2)) {
-      // Outside cylinder radius && above or below
+      // Outside cylinder radius && above or below endcaps
       let yDif = y > 0 ? y - height / 2 : y - height / -2;
       dist = Math.sqrt((dist * dist) + (yDif * yDif));
       dir = new THREE.Vector3(x * (1/dist), yDif * (1/dist),  z * (1/dist));
@@ -278,8 +274,8 @@ export default class CylinderVisComponent extends React.Component {
     dist = Number(dist.toPrecision(12));
 
     if (dist < 0) {
-      // THREE.ArrowHelper doesn't like negative THREE.Vector3's
-      dir.negate();@seth
+      // THREE.ArrowHelper doesn't like negative lengths, so we invert the direction vector.
+      dir.negate();
     }
     
     return {dist, dir}

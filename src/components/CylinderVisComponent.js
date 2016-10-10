@@ -270,13 +270,16 @@ export default class CylinderVisComponent extends React.Component {
       dir = new THREE.Vector3(0, -1, 0);
       dist = (height / 2) + y;
     } else if (fromOrigin > 0) {
+      // All other coords not centered on y axis
       dir = new THREE.Vector3(x * (1/fromOrigin), 0,  z * (1/fromOrigin));
     }
 
-    // TODO: Arbitrary precision decimals with big.js, decimal.js, or bignumber.js?
+    // TODO: Fixed precision OR arbitrary precision decimals?
+    // big.js, decimal.js, or bignumber.js?
     dist = Number(dist.toPrecision(12));
 
     if (dist < 0) {
+      // THREE.ArrowHelper doesn't like negative THREE.Vector3's
       dir.negate();
     }
     

@@ -217,6 +217,12 @@ export default class CylinderVisComponent extends React.Component {
             {`Use ${this.state.usePerspCamera ? 'Orthographic' : 'Perspective'} Camera`}
           </button>
 
+          <hr/>
+          
+          <h2>Source:</h2>
+          <a href="https://github.com/caseprince/cylinder-homework">
+            https://github.com/caseprince/cylinder-homework
+          </a>
         </div>
       </div>
     );

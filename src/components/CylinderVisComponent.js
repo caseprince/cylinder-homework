@@ -240,22 +240,24 @@ export default class CylinderVisComponent extends React.Component {
   }
 
   update(prop, val) {
-    let newState = this.state;
-    newState[prop] = val;
-    let { pointX, pointY, pointZ } = newState;
-    newState.linePosition = new THREE.Vector3( pointX, pointY, pointZ );
-    let { dist, dir } = this.toCylinderSurface(
-                          this.state.cylinderRadius,
-                          this.state.cylinderHeight,
+    let newState = Object.assign({}, this.state);
+    if (prop !== undefined && val !== undefined) {
+      newState[prop] = val;
+    }
+    let { pointX, pointY, pointZ, cylinderRadius, cylinderHeight } = newState,
+        { dist, dir } = this.toCylinderSurface(
+                          cylinderRadius,
+                          cylinderHeight,
                           pointX,
                           pointY,
                           pointZ
                         );
     newState.distance = dist;
+    newState.linePosition = new THREE.Vector3( pointX, pointY, pointZ );
     newState.lineLength = Math.abs(dist);
     newState.lineDirection = dir;
 
-    let ringY = Math.max(Math.min(pointY, this.state.cylinderHeight/2), this.state.cylinderHeight/-2);
+    let ringY = Math.max(Math.min(pointY, cylinderHeight/2), cylinderHeight/-2);
     newState.ringPosition = new THREE.Vector3( 0, ringY, 0);
 
     this.setState(newState);

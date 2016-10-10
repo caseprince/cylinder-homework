@@ -218,7 +218,7 @@ export default class CylinderVisComponent extends React.Component {
           </button>
 
           <hr/>
-          
+
           <h2>Source:</h2>
           <a href="https://github.com/caseprince/cylinder-homework">
             https://github.com/caseprince/cylinder-homework
@@ -302,7 +302,7 @@ class SliderInput extends React.Component {
 
   render() {
     return (
-      <div>
+      <div className="slider-input">
         <label htmlFor={this.props.id}>{this.props.label}</label>
         <ReactNativeSlider
           value={this.props.value}

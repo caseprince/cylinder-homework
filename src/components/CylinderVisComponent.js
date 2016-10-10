@@ -14,9 +14,9 @@ export default class CylinderVisComponent extends React.Component {
   static displayName = 'CylinderVisComponent';
   static defaultProps = {
     cylinderRadius: 1,
-    cylinderHeight: 2.2,
+    cylinderHeight: 2,
     pointX: 0,
-    pointY: 0.1,
+    pointY: 0,
     pointZ: 0
   };
 

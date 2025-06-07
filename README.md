@@ -8,7 +8,7 @@ We are looking for code that is both correct and maintainable. Your submission s
 
 ## Live Project
 
-http://caseprince.com/cylinder-homework/
+<https://caseprince.github.io/cylinder-homework/>
 
 ![screenshot](screenshot.png)
 

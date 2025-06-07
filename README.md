@@ -10,7 +10,7 @@ We are looking for code that is both correct and maintainable. Your submission s
 
 <https://caseprince.github.io/cylinder-homework/>
 
-![screenshot](screenshot.png)
+[![screenshot](screenshot.png)](https://caseprince.github.io/cylinder-homework/)
 
 ## Prerequisites
 
